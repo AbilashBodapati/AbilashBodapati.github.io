@@ -1,4 +1,3 @@
-
 /**
  * Helper Functions
  */
@@ -107,8 +106,8 @@ function addStateAndCountyButton(states, counties) {
         .data(states)
     .enter()
         .append('option')
-    .text(function (d) { return d; }) // text showed in the menu
-    .attr("value", function (d) { return d; }) // corresponding value returned by the button
+    .text(function (d) { return d; })
+    .attr("value", function (d) { return d; })
     .attr("id", "stateOption");
 
     d3.select('#selectStateButton').on("change", function() {
@@ -120,14 +119,13 @@ function addStateAndCountyButton(states, counties) {
 }
 
 function addPollutantButton(pollutant) {
-    // add the options to the button
     d3.select("#selectPollutantButton")
     .selectAll('myOptions')
         .data(pollutant)
     .enter()
         .append('option')
-    .text(function (d) { return d; }) // text showed in the menu
-    .attr("value", function (d) { return d; }) // corresponding value returned by the button
+    .text(function (d) { return d; })
+    .attr("value", function (d) { return d; })
     .attr("id", "pollutantOption");
 }
 
@@ -135,14 +133,14 @@ function addCountyButton(county) {
     console.log(county);
     d3.selectAll("#countyOption")
         .remove();
-    // add the options to the button
+
     d3.select("#selectCountyButton")
     .selectAll('myOptions')
         .data(county)
     .enter()
         .append('option')
-    .text(function (d) { return d; }) // text showed in the menu
-    .attr("value", function (d) { return d; }) // corresponding value returned by the button
+    .text(function (d) { return d; })
+    .attr("value", function (d) { return d; })
     .attr("id", "countyOption");
 }
 
@@ -158,14 +156,8 @@ function getSelectedCountyValue() {
     return d3.select('#selectCountyButton').property("value");
 }
 
-function updateChart(selectedData) {
-    
-
-}
-
 function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPollutantValue, pollutionData) {
-    d3.select("svg")
-        .remove();
+    d3.select("svg").remove();
     
     const selectedData = pollutionData[selectPollutantValue][selectedStateValue][selectedCountyValue];
     console.log(selectedData);
@@ -203,7 +195,7 @@ function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPoll
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x));
     svg.append("text")
-        .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
+        .attr("transform", "translate(" + (width / 2) + " ," + (height + 35)+ ")")
         .style("text-anchor", "middle")
         .text("Date");
 
@@ -248,9 +240,9 @@ function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPoll
 
         if(!(d3.event.selection)){
             if (!idleTimeout) {
-                return idleTimeout = setTimeout(idled, 400);
+                return idleTimeout = setTimeout(idled, 350);
             }
-            x.domain([2,10]);
+            x.domain([4,8]);
         }else{
             x.domain([
                 x.invert(d3.event.selection[0]),
@@ -260,7 +252,6 @@ function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPoll
         }
 
         xAxis.transition().duration(1000).call(d3.axisBottom(x))
-        yAxis.transition().duration(1000).call(d3.axisLeft(y))
         linePath.select('.line')
             .transition()
             .duration(1000)
@@ -273,7 +264,6 @@ function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPoll
     svg.on("dblclick", function(){
         x.domain(d3.extent(selectedData, function(d) { return d.Date; }))
         xAxis.transition().duration(1000).call(d3.axisBottom(x))
-        yAxis.transition().duration(1000).call(d3.axisLeft(y))
         linePath.select('.line')
             .transition()
             .attr("d", d3.line()
