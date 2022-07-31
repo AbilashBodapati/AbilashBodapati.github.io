@@ -180,13 +180,18 @@ function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPoll
         .range([ height, 0 ]);
     let yAxis = svg.append("g")
         .call(d3.axisLeft(y));
+
+    let pollutantUnits = '(in Parts-per Million)';
+    if (selectPollutantValue === 'Sulfur Dioxide') {
+        pollutantUnits = '(in Parts-per Billion)';
+    }
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
         .attr("x", 0 - (height / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .text(selectPollutantValue + " Mean Value");
+        .text(selectPollutantValue + " Mean Value " + pollutantUnits);
 
     let x = d3.scaleTime()
         .domain(d3.extent(selectedData, function(d) { return d.Date; }))
