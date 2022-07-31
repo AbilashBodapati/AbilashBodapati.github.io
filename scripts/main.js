@@ -218,21 +218,21 @@ function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPoll
 
     linePath.append("path")
         .datum(selectedData)
-        .attr("class", "line")
+        .attr("id", "line")
         .attr("fill", "none")
-        .attr("stroke", "red")
         .attr("stroke-width", 1)
+        .attr("stroke", "red")
         .attr("d", d3.line()
-            .x(function(d) { return x(d.Date) })
             .y(function(d) { return y(d.Mean) })
+            .x(function(d) { return x(d.Date) })
         )
 
     let brush = d3.brushX()
-        .extent( [ [0,0], [width,height] ] )
+        .extent([[0,0], [width,height]])
         .on("end", updateChartContent);
 
     linePath.append("g")
-        .attr("class", "brush")
+        .attr("id", "brush")
         .call(brush);
 
     let idleTimeout
@@ -253,11 +253,11 @@ function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPoll
                 x.invert(d3.event.selection[0]),
                 x.invert(d3.event.selection[1])
             ])
-            linePath.select(".brush").call(brush.move, null)
+            linePath.select("#brush").call(brush.move, null)
         }
 
         xAxis.transition().duration(1000).call(d3.axisBottom(x))
-        linePath.select('.line')
+        linePath.select('#line')
             .transition()
             .duration(1000)
             .attr("d", d3.line()
@@ -269,7 +269,7 @@ function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPoll
     svg.on("dblclick", function(){
         x.domain(d3.extent(selectedData, function(d) { return d.Date; }))
         xAxis.transition().duration(1000).call(d3.axisBottom(x))
-        linePath.select('.line')
+        linePath.select('#line')
             .transition()
             .attr("d", d3.line()
                 .x(function(d) { return x(d.Date) })
