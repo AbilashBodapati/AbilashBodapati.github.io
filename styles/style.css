@@ -8,6 +8,13 @@ h1 {
     margin: 50px 100px 75px;
 }
 
+p {
+    text-align: center;
+    color: whitesmoke;
+    font-size: 30px;
+    margin: 50px 50px 75px;
+}
+
 div#state {
     margin-left: 300px;
     display: inline-block;

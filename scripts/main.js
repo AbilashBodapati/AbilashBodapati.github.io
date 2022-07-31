@@ -313,6 +313,8 @@ function init() {
         addStateAndCountyButton(states, counties);
         addPollutantButton(pollutants);
         
+        d3.select("#dataLoading").remove();
+        
         d3.select('#SubmitButton').on("click", function() {
             let stateValue = getSelectedStateValue(); 
             let pollutantValue = getSelectedPollutantValue();
