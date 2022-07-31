@@ -159,39 +159,56 @@ function getSelectedCountyValue() {
 }
 
 function updateChart(selectedData) {
+    
+
+}
+
+function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPollutantValue, pollutionData) {
+    d3.select("svg")
+        .remove();
+    
+    const selectedData = pollutionData[selectPollutantValue][selectedStateValue][selectedCountyValue];
     console.log(selectedData);
 
-    // set the dimensions and margins of the graph
-    let margin = {top: 30, right: 60, bottom: 30, left: 60},
-    width = 460 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+    let margin = {top: 30, right: 60, bottom: 50, left: 60};
+    let width = 1000 - margin.left - margin.right;
+    let height = 450 - margin.top - margin.bottom;
 
-    // append the svg object to the body of the page
     let svg = d3.select("#canvas")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform",
-        "translate(" + margin.left + "," + margin.top + ")");
-
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+    
+    let y = d3.scaleLinear()
+        .domain([d3.min(selectedData, function(d) { return d.Mean; }), 
+            d3.max(selectedData, function(d) { return d.Mean; })])
+        .range([ height, 0 ]);
+    let yAxis = svg.append("g")
+        .call(d3.axisLeft(y));
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text(selectPollutantValue + " Mean Value");
 
     let x = d3.scaleTime()
-      .domain(d3.extent(selectedData, function(d) { return d.Date; }))
-      .range([ 0, width ]);
-    xAxis = svg.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
+        .domain(d3.extent(selectedData, function(d) { return d.Date; }))
+        .range([ 0, width ]);
+    let xAxis = svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+    svg.append("text")
+        .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
+        .style("text-anchor", "middle")
+        .text("Date");
 
-    let y = d3.scaleLinear()
-      .domain([d3.min(selectedData, function(d) { return d.Mean; }), 
-        d3.max(selectedData, function(d) { return d.Mean; })])
-      .range([ height, 0 ]);
-    yAxis = svg.append("g")
-      .call(d3.axisLeft(y));
 
-    // Add a clipPath: everything out of this area won't be drawn.
-    var clip = svg.append("defs").append("svg:clipPath")
+    svg.append("defs").append("svg:clipPath")
         .attr("id", "clip")
         .append("svg:rect")
         .attr("width", width )
@@ -199,83 +216,71 @@ function updateChart(selectedData) {
         .attr("x", 0)
         .attr("y", 0);
 
-    // Add brushing
-    var brush = d3.brushX()                   // Add the brush feature using the d3.brush function
-        .extent( [ [0,0], [width,height] ] )  // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
-        .on("end", updateChartContent)               // Each time the brush selection changes, trigger the 'updateChart' function
+    
+    let linePath = svg.append('g').attr("clip-path", "url(#clip)");
 
-    // Create the line variable: where both the line and the brush take place
-    var line = svg.append('g')
-      .attr("clip-path", "url(#clip)")
-
-    // Add the line
-    line.append("path")
-      .datum(selectedData)
-      .attr("class", "line")  // I add the class line to be able to modify this line later on.
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
-      .attr("d", d3.line()
-        .x(function(d) { return x(d.Date) })
-        .y(function(d) { return y(d.Mean) })
+    linePath.append("path")
+        .datum(selectedData)
+        .attr("class", "line")
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+            .x(function(d) { return x(d.Date) })
+            .y(function(d) { return y(d.Mean) })
         )
 
-    // Add the brushing
-    line
-      .append("g")
+    let brush = d3.brushX()
+        .extent( [ [0,0], [width,height] ] )
+        .on("end", updateChartContent);
+
+    linePath.append("g")
         .attr("class", "brush")
         .call(brush);
 
-    // A function that set idleTimeOut to null
-    var idleTimeout
-    function idled() { idleTimeout = null; }
-
-    // A function that update the chart for given boundaries
-    function updateChartContent() {
-
-      // What are the selected boundaries?
-      extent = d3.event.selection
-
-      // If no selection, back to initial coordinate. Otherwise, update X axis domain
-      if(!extent){
-        if (!idleTimeout) return idleTimeout = setTimeout(idled, 350); // This allows to wait a little bit
-        x.domain([ 4,8])
-      }else{
-        x.domain([ x.invert(extent[0]), x.invert(extent[1]) ])
-        line.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
-      }
-
-      // Update axis and line position
-      xAxis.transition().duration(1000).call(d3.axisBottom(x))
-      line
-          .select('.line')
-          .transition()
-          .duration(1000)
-          .attr("d", d3.line()
-            .x(function(d) { return x(d.Date) })
-            .y(function(d) { return y(d.Mean) })
-          )
+    let idleTimeout
+    function idled() { 
+        idleTimeout = null; 
     }
 
-    // If user double click, reinitialize the chart
-    svg.on("dblclick",function(){
-      x.domain(d3.extent(selectedData, function(d) { return d.Date; }))
-      xAxis.transition().call(d3.axisBottom(x))
-      line
-        .select('.line')
-        .transition()
-        .attr("d", d3.line()
-          .x(function(d) { return x(d.Date) })
-          .y(function(d) { return y(d.Mean) })
-      )
+    function updateChartContent() {
+        extent = d3.event.selection
+
+        if(!(d3.event.selection)){
+            if (!idleTimeout) {
+                return idleTimeout = setTimeout(idled, 400);
+            }
+            x.domain([2,10]);
+        }else{
+            x.domain([
+                x.invert(d3.event.selection[0]),
+                x.invert(d3.event.selection[1])
+            ])
+            linePath.select(".brush").call(brush.move, null)
+        }
+
+        xAxis.transition().duration(1000).call(d3.axisBottom(x))
+        yAxis.transition().duration(1000).call(d3.axisLeft(y))
+        linePath.select('.line')
+            .transition()
+            .duration(1000)
+            .attr("d", d3.line()
+                .x(function(d) { return x(d.Date) })
+                .y(function(d) { return y(d.Mean) })
+            )
+    }
+
+    svg.on("dblclick", function(){
+        x.domain(d3.extent(selectedData, function(d) { return d.Date; }))
+        xAxis.transition().duration(1000).call(d3.axisBottom(x))
+        yAxis.transition().duration(1000).call(d3.axisLeft(y))
+        linePath.select('.line')
+            .transition()
+            .attr("d", d3.line()
+                .x(function(d) { return x(d.Date) })
+                .y(function(d) { return y(d.Mean) })
+            )
     });
-
-}
-
-function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPollutantValue, pollutionData) {
-    d3.select("svg")
-        .remove();
-    updateChart(pollutionData[selectPollutantValue][selectedStateValue][selectedCountyValue]);
 }
 
 /**
