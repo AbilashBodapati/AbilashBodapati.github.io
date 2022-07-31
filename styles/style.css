@@ -1,0 +1,22 @@
+body {
+    background-color: rgb(60, 179, 113, 0.75);
+}
+
+h1 {
+    text-align: center;
+    color: whitesmoke;
+    margin: 50px 100px 75px;
+}
+
+div#state {
+    margin-left: 200px;
+    display: inline-block;
+}
+
+div#county, div#pollutant, div#submit {
+    display: inline-block;
+}
+
+svg {
+    background-color: silver;
+}

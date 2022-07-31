@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pollution in USA (2000 - 2021)</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <link href="styles/style.css" rel="stylesheet">
+</head>
+<body id="mainPage" onload="init()">
+    <h1 id="title">
+        Pollution in USA (2000 - 2021)
+    </h1>
+
+    
+    <div id="canvas">
+        <div id="state">
+            <select id="selectStateButton" class="selectButton">
+                <option value="SelectState">Select State:</option>
+            </select>
+        </div>
+        <div id="county">
+            <select id="selectCountyButton" class="selectButton">
+                <option value="SelectCounty">Select County:</option>
+            </select>
+        </div>
+        <div id="pollutant">
+            <select id="selectPollutantButton" class="selectButton">
+                <option value="SelectPollutant">Select Gas Pollutant:</option>
+            </select>
+        </div>
+        <div id="submit">
+            <button type="button" id="SubmitButton">Submit</button>
+        </div>
+    </div>
+
+    <script type='text/javascript' src="scripts/main.js"></script>
+</body>
+</html>
