@@ -25,8 +25,7 @@ const getCOData = (pollutionData) => {
         "Mean": parseFloat(pollutionData["CO Mean"], 10),
         "CO 1st Max Value": pollutionData["CO 1st Max Value"],
         "CO 1st Max Hour": pollutionData["CO 1st Max Hour"],
-        "CO AQI": pollutionData["CO AQI"],
-       
+        "CO AQI": pollutionData["CO AQI"]
     };
 }
 
@@ -77,8 +76,22 @@ const getSO2Data = (pollutionData) => {
         "Mean": parseFloat(pollutionData["SO2 Mean"], 10),
         "SO2 1st Max Value": pollutionData["SO2 1st Max Value"],
         "SO2 1st Max Hour": pollutionData["SO2 1st Max Hour"],
-        "SO2 AQI": pollutionData["SO2 AQI"],
+        "SO2 AQI": pollutionData["SO2 AQI"]
     };
+}
+
+const getColor = (selectPollutantValue) => {
+    let color = "Black";
+    if (selectPollutantValue === 'Carbon Monoxide') {
+        color = "OliveDrab";
+    } else if (selectPollutantValue === 'Nitrogen Dioxide') {
+        color = "OrangeRed";
+    } else if (selectPollutantValue === 'Ground-Level Ozone') {
+        color = "Peru";
+    } else if (selectPollutantValue === 'Sulfur Dioxide') {
+        color = "Navy";
+    }
+    return color;
 }
 
 const groupByPollutant = (arr) => {
@@ -156,6 +169,43 @@ function getSelectedCountyValue() {
     return d3.select('#selectCountyButton').property("value");
 }
 
+function getAnnotations(data) {
+    return [
+        {
+            note: {
+                label: "Earnings plummeted",
+                title: "April 17th - 19th",
+                wrap: 150,
+                padding: 10
+            },
+            color: ["#cc0000"],
+            x: x(parseDate('2018-04-18')),
+            y: y(8197),
+            dy: -100,
+            dx: -5,
+            subject: {
+                radius: 50,
+                radiusPadding: 5
+            },
+            type: d3.annotationCalloutCircle,
+        },
+        {
+            note: {
+                label: "Strong Recovery",
+                title: "April 20th",
+                wrap: 150,
+                padding: 10
+            },
+            color: ["#00b300"],
+            x: x(parseDate('2018-04-20')),
+            y: y(8880.23),
+            dy: 40,
+            dx: 40,
+            type: d3.annotationCalloutElbow,
+        },
+    ]
+}
+
 function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPollutantValue, pollutionData) {
     d3.select("svg").remove();
     
@@ -221,7 +271,7 @@ function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPoll
         .attr("id", "line")
         .attr("fill", "none")
         .attr("stroke-width", 1)
-        .attr("stroke", "red")
+        .attr("stroke", getColor(selectPollutantValue))
         .attr("d", d3.line()
             .y(function(d) { return y(d.Mean) })
             .x(function(d) { return x(d.Date) })
