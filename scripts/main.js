@@ -89,9 +89,21 @@ const getColor = (selectPollutantValue) => {
     } else if (selectPollutantValue === 'Ground-Level Ozone') {
         color = "Peru";
     } else if (selectPollutantValue === 'Sulfur Dioxide') {
-        color = "Navy";
+        color = "DodgerBlue";
     }
     return color;
+}
+
+const minObject = (data) => {
+    return data.reduce(function(prev, curr) {
+        return prev.Mean < curr.Mean ? prev : curr;
+    });
+}
+
+const maxObject = (data) => {
+    return data.reduce(function(prev, curr) {
+        return prev.Mean > curr.Mean ? prev : curr;
+    });
 }
 
 const groupByPollutant = (arr) => {
@@ -113,7 +125,6 @@ const groupByPollutant = (arr) => {
 }
 
 function addStateAndCountyButton(states, counties) {
-    // add the options to the button
     d3.select("#selectStateButton")
     .selectAll('myOptions')
         .data(states)
@@ -169,39 +180,39 @@ function getSelectedCountyValue() {
     return d3.select('#selectCountyButton').property("value");
 }
 
-function getAnnotations(data) {
+const getAnnotations = (minObject, maxObject, x, y) => {
     return [
         {
             note: {
-                label: "Earnings plummeted",
-                title: "April 17th - 19th",
+                label: "Minimum Value Observed with "+minObject.Mean,
+                title: minObject.Year+"-"+minObject.Month+"-"+minObject.Day,
                 wrap: 150,
                 padding: 10
             },
-            color: ["#cc0000"],
-            x: x(parseDate('2018-04-18')),
-            y: y(8197),
-            dy: -100,
+            color: ["DarkGreen"],
+            x: x(minObject.Date),
+            y: y(minObject.Mean),
+            dy: -200,
             dx: -5,
-            subject: {
-                radius: 50,
-                radiusPadding: 5
-            },
-            type: d3.annotationCalloutCircle,
+            type: d3.annotationCalloutElbow,
         },
         {
             note: {
-                label: "Strong Recovery",
-                title: "April 20th",
+                label: "Maximum Value Observed with "+maxObject.Mean,
+                title: maxObject.Year+"-"+maxObject.Month+"-"+maxObject.Day,
                 wrap: 150,
                 padding: 10
             },
-            color: ["#00b300"],
-            x: x(parseDate('2018-04-20')),
-            y: y(8880.23),
+            color: ["DarkRed"],
+            x: x(maxObject.Date),
+            y: y(maxObject.Mean),
             dy: 40,
             dx: 40,
-            type: d3.annotationCalloutElbow,
+            subject: {
+                radius: 25,
+                radiusPadding: 5
+            },
+            type: d3.annotationCalloutCircle
         },
     ]
 }
@@ -292,6 +303,7 @@ function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPoll
 
     function updateChartContent() {
         extent = d3.event.selection
+        svg.selectAll("#annotations").remove();
 
         if(!(d3.event.selection)){
             if (!idleTimeout) {
@@ -313,8 +325,14 @@ function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPoll
             .attr("d", d3.line()
                 .x(function(d) { return x(d.Date) })
                 .y(function(d) { return y(d.Mean) })
-            )
+            );
     }
+
+    const makeAnnotations = d3.annotation()
+        .annotations(getAnnotations(minObject(selectedData), maxObject(selectedData), x, y));
+    svg.append("g")
+        .attr("id", "annotations")
+        .call(makeAnnotations);
 
     svg.on("dblclick", function(){
         x.domain(d3.extent(selectedData, function(d) { return d.Date; }))
@@ -325,6 +343,12 @@ function triggerSubmitButton(selectedStateValue, selectedCountyValue ,selectPoll
                 .x(function(d) { return x(d.Date) })
                 .y(function(d) { return y(d.Mean) })
             )
+
+        const makeAnnotations = d3.annotation()
+            .annotations(getAnnotations(minObject(selectedData), maxObject(selectedData), x, y));
+        svg.append("g")
+            .attr("id", "annotations")
+            .call(makeAnnotations);
     });
 }
 
